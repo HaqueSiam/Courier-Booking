@@ -1,181 +1,186 @@
-// === File: client/src/pages/Register.jsx ===
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+// frontend/src/pages/Register.jsx
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-export default function Register() {
+const Register = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'Customer',
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "customer",
+    secretKey: "",
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Handle input changes with trimming start whitespace
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value.replace(/^\s+/, ''), // trim leading spaces while typing
+      [name]: value,
     }));
   };
 
-  // Simple email validation regex
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  const showSecretKeyInput = formData.role === "admin" || formData.role === "agent";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    // Trim all inputs fully before validation
-    const trimmedData = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      password: formData.password.trim(),
-      role: formData.role,
-    };
-
-    // Basic validation
-    if (!trimmedData.name || !trimmedData.email || !trimmedData.password) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    if (!validateEmail(trimmedData.email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    if (trimmedData.password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await axios.post(`${API_URL}/api/auth/register`, trimmedData);
-      if (response.status === 201) {
-        setSuccess('Registration successful! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 2000);
-      } else {
-        setError('Registration failed. Please try again.');
+      // Prepare payload
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+      };
+      if (showSecretKeyInput) {
+        payload.secretKey = formData.secretKey;
       }
+
+      await axios.post("/api/auth/register", payload);
+
+      setSuccess("Registration successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded-md shadow-md bg-white">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
-        Register for Courier & Parcel System
-      </h2>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-center mb-6">Create an Account</h2>
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4" role="alert">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-100 text-green-700 p-3 rounded mb-4" role="alert">
-          {success}
-        </div>
-      )}
+        {error && (
+          <div className="mb-4 text-red-700 bg-red-100 border border-red-400 px-4 py-2 rounded">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 text-green-700 bg-green-100 border border-green-400 px-4 py-2 rounded">
+            {success}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label htmlFor="name" className="block font-semibold mb-1">
-            Name
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-            placeholder="Full name"
-            required
-            autoComplete="name"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="name" className="block mb-1 font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="John Doe"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-        {/* Email */}
-        <div>
-          <label htmlFor="email" className="block font-semibold mb-1">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-            placeholder="you@example.com"
-            required
-            autoComplete="email"
-          />
-        </div>
+          <div>
+            <label htmlFor="email" className="block mb-1 font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-        {/* Password */}
-        <div>
-          <label htmlFor="password" className="block font-semibold mb-1">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-            placeholder="At least 6 characters"
-            required
-            minLength={6}
-            autoComplete="new-password"
-          />
-        </div>
+          <div>
+            <label htmlFor="phone" className="block mb-1 font-medium text-gray-700">
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              required
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="+8801234567890"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-        {/* Role */}
-        <div>
-          <label htmlFor="role" className="block font-semibold mb-1">
-            Select Role
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+          <div>
+            <label htmlFor="password" className="block mb-1 font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="role" className="block mb-1 font-medium text-gray-700">
+              Select Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="customer">Customer</option>
+              <option value="agent">Agent</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          {showSecretKeyInput && (
+            <div>
+              <label htmlFor="secretKey" className="block mb-1 font-medium text-gray-700">
+                {formData.role === "admin" ? "Admin Secret Key" : "Agent Secret Key"}
+              </label>
+              <input
+                id="secretKey"
+                name="secretKey"
+                type="password"
+                required
+                value={formData.secretKey}
+                onChange={handleChange}
+                placeholder="Enter secret key"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-2 rounded"
           >
-            <option value="Customer">Customer</option>
-            <option value="Agent">Agent</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition-colors"
-        >
-          Register
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Already have an account?{' '}
-        <Link to="/login" className="text-blue-600 hover:underline">
-          Login here
-        </Link>
-      </p>
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
+
+export default Register;

@@ -1,15 +1,19 @@
-// === File: client/src/components/ProtectedRoute.jsx ===
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-const fakeAuth = {
-  user: JSON.parse(localStorage.getItem('user')),
-  isAuthenticated: () => !!localStorage.getItem('token'),
-  hasRole: (roles) => roles.includes(JSON.parse(localStorage.getItem('user'))?.role),
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 };
 
-export default function ProtectedRoute({ children, roles }) {
-  if (!fakeAuth.isAuthenticated()) return <Navigate to="/login" />;
-  if (!fakeAuth.hasRole(roles)) return <Navigate to="/" />;
-  return children;
-}
+export default ProtectedRoute;

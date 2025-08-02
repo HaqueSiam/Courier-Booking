@@ -1,97 +1,196 @@
-// === File: client/src/components/ParcelForm.jsx ===
-import React, { useState } from 'react';
+// frontend/src/pages/Home.jsx
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
-export default function ParcelForm() {
-  const [form, setForm] = useState({
-    pickupAddress: '',
-    deliveryAddress: '',
-    type: '',
-    size: '',
-    cod: false,
-  });
+const Home = () => {
+  const { user, token } = useContext(AuthContext);
+  const [bookings, setBookings] = useState([]);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filteredBookings, setFilteredBookings] = useState([]);
 
-  const handleChange = (e) => {
-    const { name, value, type: inputType, checked } = e.target;
-    setForm({
-      ...form,
-      [name]: inputType === 'checkbox' ? checked : value,
-    });
-  };
+  useEffect(() => {
+    if (!user) return;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Parcel booked:', form);
-    // Add API call here
-  };
+    // Fetch bookings depending on role
+    const fetchBookings = async () => {
+      try {
+        let url = "";
+        if (user.role === "customer") {
+          url = "/api/bookings/customer"; // your backend should handle auth token to get bookings for user
+        } else if (user.role === "admin") {
+          url = "/api/bookings/admin/assigned";
+        } else if (user.role === "agent") {
+          url = "/api/bookings/agent/assigned";
+        }
 
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-center text-indigo-700">
-          📦 Book a Parcel
-        </h2>
+        if (!url) return;
 
-        <input
-          type="text"
-          name="pickupAddress"
-          placeholder="Pickup Address"
-          value={form.pickupAddress}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        const response = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBookings(response.data);
+      } catch (error) {
+        console.error("Failed to fetch bookings:", error);
+      }
+    };
+
+    fetchBookings();
+  }, [user, token]);
+
+  // For Admin filtering by status
+  useEffect(() => {
+    if (user?.role !== "admin") {
+      setFilteredBookings(bookings);
+      return;
+    }
+    if (filterStatus === "all") {
+      setFilteredBookings(bookings);
+    } else {
+      setFilteredBookings(
+        bookings.filter(
+          (b) =>
+            b.status &&
+            b.status.toLowerCase() === filterStatus.toLowerCase()
+        )
+      );
+    }
+  }, [filterStatus, bookings, user]);
+
+  // Pre-login view
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-10 text-center">
+        <h1 className="text-4xl font-semibold mb-6">Welcome to Courier Express</h1>
+        <p className="mb-6 text-lg text-gray-700">
+          Your trusted courier and parcel booking service.
+        </p>
+        <img
+          src="/assets/courier_welcome.png" // Place your courier image here: public/assets/courier_welcome.png
+          alt="Courier Delivery"
+          className="mx-auto max-w-xs rounded-lg shadow-lg"
         />
+      </div>
+    );
+  }
 
-        <input
-          type="text"
-          name="deliveryAddress"
-          placeholder="Delivery Address"
-          value={form.deliveryAddress}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
+  // Customer Home: Show all bookings for customer
+  if (user.role === "customer") {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <h2 className="text-3xl font-semibold mb-6">My Bookings</h2>
+        {bookings.length === 0 ? (
+          <p className="text-gray-600">You have no bookings yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg shadow">
+              <thead className="bg-blue-600 text-white">
+                <tr>
+                  <th className="py-3 px-4 text-left">Parcel Name</th>
+                  <th className="py-3 px-4 text-left">Pickup Address</th>
+                  <th className="py-3 px-4 text-left">Delivery Address</th>
+                  <th className="py-3 px-4 text-left">Assigned To</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((b) => (
+                  <tr
+                    key={b._id}
+                    className="border-b even:bg-gray-50 hover:bg-gray-100"
+                  >
+                    <td className="py-3 px-4">{b.parcelName}</td>
+                    <td className="py-3 px-4">{b.pickupAddress}</td>
+                    <td className="py-3 px-4">{b.deliveryAddress}</td>
+                    <td className="py-3 px-4">
+                      {b.assignedTo
+                        ? `${b.assignedTo.name} (${b.assignedTo.phone})`
+                        : "Not assigned yet"}
+                    </td>
+                    <td className="py-3 px-4 font-medium">
+                      {b.status ? b.status : "Not assigned yet"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
 
-        <input
-          type="text"
-          name="type"
-          placeholder="Parcel Type (e.g., Documents, Electronics)"
-          value={form.type}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
+  // Admin Home: Dashboard with filter and bookings assigned to any Agent
+  if (user.role === "admin") {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <h2 className="text-3xl font-semibold mb-6">Dashboard</h2>
+        <div className="mb-4">
+          <label
+            htmlFor="statusFilter"
+            className="mr-3 font-medium text-gray-700"
+          >
+            Filter by Status:
+          </label>
+          <select
+            id="statusFilter"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All</option>
+            <option value="Picked Up">Picked Up</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Failed">Failed</option>
+          </select>
+        </div>
+        {filteredBookings.length === 0 ? (
+          <p className="text-gray-600">No bookings found.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg shadow">
+              <thead className="bg-blue-600 text-white">
+                <tr>
+                  <th className="py-3 px-4 text-left">Parcel Name</th>
+                  <th className="py-3 px-4 text-left">Customer ID</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                  <th className="py-3 px-4 text-left">Agent ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBookings.map((b) => (
+                  <tr
+                    key={b._id}
+                    className="border-b even:bg-gray-50 hover:bg-gray-100"
+                  >
+                    <td className="py-3 px-4">{b.parcelName}</td>
+                    <td className="py-3 px-4">{b.customerId}</td>
+                    <td className="py-3 px-4">{b.status || "Not assigned yet"}</td>
+                    <td className="py-3 px-4">{b.assignedTo || "N/A"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
 
-        <input
-          type="text"
-          name="size"
-          placeholder="Parcel Size (e.g., Small, Medium, Large)"
-          value={form.size}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
+  // Agent Home: Show a simple welcome message or link to update parcel page
+  if (user.role === "agent") {
+    return (
+      <div className="container mx-auto px-6 py-10 text-center">
+        <h2 className="text-3xl font-semibold mb-6">Welcome, {user.name}</h2>
+        <p className="text-gray-700 mb-6">
+          Please navigate to <strong>Update Parcel</strong> page to manage your assigned parcels.
+        </p>
+      </div>
+    );
+  }
 
-        <label className="flex items-center space-x-2 text-gray-700">
-          <input
-            type="checkbox"
-            name="cod"
-            checked={form.cod}
-            onChange={handleChange}
-            className="h-4 w-4 accent-indigo-600"
-          />
-          <span>Cash On Delivery (COD)</span>
-        </label>
+  return null;
+};
 
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
-        >
-          Submit
-        </button>
-      </form>
-    </div>
-  );
-}
+export default Home;
