@@ -1,4 +1,4 @@
-// === File: server/models/User.js ===
+// === File: backend/models/User.js ===
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 

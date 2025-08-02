@@ -1,4 +1,4 @@
-// === File: server/models/Parcel.js ===
+// === File: backend/models/Parcel.js ===
 const mongoose = require('mongoose');
 
 const parcelSchema = new mongoose.Schema({

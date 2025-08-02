@@ -1,4 +1,4 @@
-// === File: server/routes/parcel.js ===
+// === File: backend/routes/parcel.js ===
 const express = require('express');
 const { bookParcel, getMyParcels, updateParcelStatus } = require('../controllers/parcelController');
 const { authMiddleware } = require('../middleware/authMiddleware');

@@ -1,4 +1,4 @@
-// === File: utils/analytics.js ===
+// === File: backend/utils/analytics.js ===
 const Parcel = require('../models/Parcel');
 const mongoose = require('mongoose');
 

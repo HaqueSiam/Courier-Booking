@@ -1,3 +1,4 @@
+// === File: client/src/components/PackageDetail.jsx ===
 import React from 'react';
 import { MapPin } from 'lucide-react';
 

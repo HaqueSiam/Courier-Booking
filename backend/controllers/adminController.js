@@ -1,4 +1,4 @@
-// === File: server/controllers/adminController.js ===
+// === File: backend/controllers/adminController.js ===
 const Parcel = require('../models/Parcel');
 const User = require('../models/User');
 

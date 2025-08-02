@@ -1,4 +1,4 @@
-// === File: server/routes/admin.js ===
+// === File: backend/routes/admin.js ===
 const express = require('express');
 const { assignAgent, analytics } = require('../controllers/adminController');
 const { authMiddleware } = require('../middleware/authMiddleware');

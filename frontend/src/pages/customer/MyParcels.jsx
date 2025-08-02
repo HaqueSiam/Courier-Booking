@@ -1,3 +1,4 @@
+// === File: client/src/pages/customer/MyParcels.jsx ===
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 

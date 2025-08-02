@@ -1,4 +1,4 @@
-// === File: server/controllers/parcelController.js ===
+// === File: backend/controllers/parcelController.js ===
 const Parcel = require('../models/Parcel');
 
 exports.bookParcel = async (req, res) => {
