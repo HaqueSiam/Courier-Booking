@@ -1,6 +1,5 @@
 // frontend/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
-import PropTypes from "prop-types";
 
 // Create the AuthContext
 export const AuthContext = createContext();
@@ -13,31 +12,23 @@ export const AuthProvider = ({ children }) => {
 
   // Load auth info from localStorage on mount
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-      if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      }
-    } catch (error) {
-      console.error("Failed to load auth data from localStorage", error);
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
   }, []);
 
   // Save auth info to localStorage whenever user or token changes
   useEffect(() => {
-    try {
-      if (user && token) {
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", token);
-      } else {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-      }
-    } catch (error) {
-      console.error("Failed to save auth data to localStorage", error);
+    if (user && token) {
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
   }, [user, token]);
 
@@ -58,8 +49,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
 };

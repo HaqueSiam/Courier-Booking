@@ -1,18 +1,13 @@
 // === File: backend/models/User.js ===
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  role: { type: String, enum: ['Customer', 'Agent', 'Admin'], default: 'Customer' }
-});
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'agent', 'customer'], required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+}, { timestamps: true });
 
-userSchema.pre('save', async function () {
-  if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-});
+export default mongoose.model('User', userSchema);
 
-module.exports = mongoose.model('User', userSchema);

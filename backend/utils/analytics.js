@@ -1,17 +1,25 @@
-// === File: backend/utils/analytics.js ===
-const Parcel = require('../models/Parcel');
-const mongoose = require('mongoose');
+// backend/utils/analytics.js
+import Booking from '../models/Booking.js';
 
-exports.getDashboardStats = async () => {
+export const getDashboardStats = async () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const dailyBookings = await Parcel.countDocuments({ createdAt: { $gte: today, $lt: tomorrow } });
-  const failedDeliveries = await Parcel.countDocuments({ status: 'FAILED' });
-  const codAmount = await Parcel.aggregate([
+  // Count bookings created today
+  const dailyBookings = await Booking.countDocuments({
+    createdAt: { $gte: today, $lt: tomorrow }
+  });
+
+  // Count failed deliveries
+  const failedDeliveries = await Booking.countDocuments({
+    status: 'FAILED'
+  });
+
+  // Sum of COD amounts where paymentType is COD and status is not CANCELLED
+  const codAmountAggregation = await Booking.aggregate([
     { $match: { paymentType: 'COD', status: { $ne: 'CANCELLED' } } },
     { $group: { _id: null, total: { $sum: '$amount' } } },
   ]);
@@ -19,6 +27,6 @@ exports.getDashboardStats = async () => {
   return {
     dailyBookings,
     failedDeliveries,
-    codAmount: codAmount[0]?.total || 0,
+    codAmount: codAmountAggregation[0]?.total || 0,
   };
 };

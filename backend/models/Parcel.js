@@ -1,16 +1,21 @@
 // === File: backend/models/Parcel.js ===
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const parcelSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  agent: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  pickup: String,
-  delivery: String,
-  size: String,
-  paymentMode: String,
-  status: { type: String, enum: ['Booked', 'Picked Up', 'In Transit', 'Delivered', 'Failed'], default: 'Booked' },
-  coords: [{ lat: Number, lon: Number, timestamp: Date }],
-  createdAt: { type: Date, default: Date.now }
+  parcelName: { type: String, required: true, unique: true },
+  pickupAddress: { type: String, required: true },
+  deliveryAddress: { type: String, required: true },
+  parcelType: { type: String, enum: ['fragile', 'solid', 'liquid'], required: true },
+  parcelSize: { type: String, enum: ['small', 'medium', 'big'], required: true },
+  paymentType: { type: String, enum: ['COD', 'Prepaid'], required: true },
+  bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  status: {
+    type: String,
+    enum: ['Not assigned yet', 'Picked Up', 'In Transit', 'Delivered', 'Failed'],
+    default: 'Not assigned yet',
+  },
+  createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Parcel', parcelSchema);
+export default mongoose.model('Parcel', parcelSchema);
