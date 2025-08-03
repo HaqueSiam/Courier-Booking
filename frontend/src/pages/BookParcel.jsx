@@ -63,7 +63,7 @@ const BookParcel = () => {
         customerId: user.id,
       };
 
-      await axios.post("/api/customer/book", payload, {
+      await axios.post("/api/bookings", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

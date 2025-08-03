@@ -10,7 +10,6 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch users and their booking history
   const fetchUsers = async () => {
     setLoading(true);
     setError("");
@@ -20,9 +19,7 @@ const Users = () => {
       });
       setUsers(res.data || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to fetch users."
-      );
+      setError(err.response?.data?.message || "Failed to fetch users.");
     } finally {
       setLoading(false);
     }
@@ -69,8 +66,6 @@ const Users = () => {
                     <thead className="bg-gray-100">
                       <tr>
                         <th className="border border-gray-300 px-3 py-1 text-left">Parcel Name</th>
-                        <th className="border border-gray-300 px-3 py-1 text-left">Pickup Address</th>
-                        <th className="border border-gray-300 px-3 py-1 text-left">Delivery Address</th>
                         <th className="border border-gray-300 px-3 py-1 text-left">Status</th>
                       </tr>
                     </thead>
@@ -78,8 +73,6 @@ const Users = () => {
                       {user.bookings.map((booking) => (
                         <tr key={booking._id} className="hover:bg-gray-50">
                           <td className="border border-gray-300 px-3 py-1">{booking.parcelName}</td>
-                          <td className="border border-gray-300 px-3 py-1">{booking.pickupAddress}</td>
-                          <td className="border border-gray-300 px-3 py-1">{booking.deliveryAddress}</td>
                           <td className="border border-gray-300 px-3 py-1 capitalize">
                             {booking.status || "Not Assigned"}
                           </td>

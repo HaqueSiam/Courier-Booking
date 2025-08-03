@@ -46,7 +46,7 @@ const Register = () => {
         payload.secretKey = formData.secretKey;
       }
 
-      await axios.post("/api/auth/register", payload);
+      await axios.post("http://localhost:5000/api/auth/register", payload);
 
       setSuccess("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 2000);

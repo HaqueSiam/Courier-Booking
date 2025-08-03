@@ -10,9 +10,8 @@ const UpdateParcel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Form state for updating status
   const [updateData, setUpdateData] = useState({
-    parcelName: "",
+    parcelId: "",
     location: "",
     status: "",
   });
@@ -20,19 +19,16 @@ const UpdateParcel = () => {
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
 
-  // Fetch parcels assigned to this agent
   const fetchParcels = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(`/api/agent/parcels`, {
+      const res = await axios.get("/api/agent/assigned-parcels", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setParcels(res.data || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to load parcels."
-      );
+      setError(err.response?.data?.message || "Failed to load parcels.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +38,6 @@ const UpdateParcel = () => {
     fetchParcels();
   }, []);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUpdateData((prev) => ({
@@ -53,67 +48,29 @@ const UpdateParcel = () => {
     setSubmitSuccess("");
   };
 
-  // Validate status update order rules
-  const canUpdateStatus = (currentStatus, newStatus) => {
-    const order = ["not picked", "picked up", "in transit", "delivered"];
-    const currentIndex = order.indexOf(currentStatus.toLowerCase());
-    const newIndex = order.indexOf(newStatus.toLowerCase());
-
-    if (newStatus.toLowerCase() === "failed") return true;
-    if (newIndex === -1) return false;
-    if (newIndex === 0) return false; // can't go back to "not picked"
-    // new status must be next or later in order, but can't skip stages
-    return newIndex === currentIndex + 1;
-  };
-
-  // Submit update status form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
     setSubmitSuccess("");
 
-    if (!updateData.parcelName || !updateData.status) {
-      setSubmitError("Parcel Name and Status are required.");
-      return;
-    }
-
-    // Find the parcel to validate status order
-    const parcel = parcels.find(
-      (p) => p.parcelName === updateData.parcelName
-    );
-    if (!parcel) {
-      setSubmitError("Parcel not found.");
-      return;
-    }
-
-    const currentStatus = parcel.status || "not picked";
-    const newStatus = updateData.status;
-
-    if (!canUpdateStatus(currentStatus, newStatus)) {
-      setSubmitError(
-        `Status update not allowed. Current status is "${currentStatus}". You must update in order: Picked Up → In Transit → Delivered. Failed can be selected anytime.`
-      );
+    if (!updateData.parcelId || !updateData.status) {
+      setSubmitError("Parcel and Status are required.");
       return;
     }
 
     try {
       await axios.put(
-        `/api/agent/parcels/${parcel._id}/status`,
-        {
-          status: newStatus,
-          location: updateData.location,
-        },
+        `/api/agent/update-status`,
+        updateData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
       setSubmitSuccess("Status updated successfully.");
-      setUpdateData({ parcelName: "", location: "", status: "" });
+      setUpdateData({ parcelId: "", location: "", status: "" });
       fetchParcels();
     } catch (err) {
-      setSubmitError(
-        err.response?.data?.message || "Failed to update status."
-      );
+      setSubmitError(err.response?.data?.message || "Failed to update status.");
     }
   };
 
@@ -126,6 +83,7 @@ const UpdateParcel = () => {
       {loading && (
         <p className="text-center text-gray-600">Loading parcels...</p>
       )}
+
       {error && (
         <div className="bg-red-100 text-red-700 p-3 mb-4 rounded text-center font-medium">
           {error}
@@ -160,8 +118,8 @@ const UpdateParcel = () => {
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="border border-gray-300 px-4 py-2">{parcel.parcelName}</td>
-                    <td className="border border-gray-300 px-4 py-2">{parcel.customerName}</td>
-                    <td className="border border-gray-300 px-4 py-2">{parcel.customerPhone}</td>
+                    <td className="border border-gray-300 px-4 py-2">{parcel.bookedBy.name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{parcel.bookedBy.phone}</td>
                     <td className="border border-gray-300 px-4 py-2">{parcel.pickupAddress}</td>
                     <td className="border border-gray-300 px-4 py-2">{parcel.deliveryAddress}</td>
                     <td className="border border-gray-300 px-4 py-2 capitalize">
@@ -195,13 +153,13 @@ const UpdateParcel = () => {
           </div>
         )}
 
-        <label className="block mb-2 font-medium text-gray-700" htmlFor="parcelName">
-          Parcel Name
+        <label className="block mb-2 font-medium text-gray-700" htmlFor="parcelId">
+          Select Parcel
         </label>
         <select
-          id="parcelName"
-          name="parcelName"
-          value={updateData.parcelName}
+          id="parcelId"
+          name="parcelId"
+          value={updateData.parcelId}
           onChange={handleChange}
           className="w-full mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
           required
@@ -210,7 +168,7 @@ const UpdateParcel = () => {
             Select parcel
           </option>
           {parcels.map((parcel) => (
-            <option key={parcel._id} value={parcel.parcelName}>
+            <option key={parcel._id} value={parcel._id}>
               {parcel.parcelName}
             </option>
           ))}

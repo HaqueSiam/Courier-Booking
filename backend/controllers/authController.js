@@ -1,15 +1,17 @@
-// === File: backend/controllers/authController.js ===
+// backend/controllers/authController.js
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export const register = async (req, res) => {
+  
   const { name, phone, role, email, password, secretKey } = req.body;
 
   if (!name || !phone || !role || !email || !password) {
     return res.status(400).json({ message: 'Please fill all required fields' });
   }
 
+  // Validate secret keys for admin/agent roles
   if (role === 'admin' && secretKey !== process.env.ADMIN_SECRET_KEY) {
     return res.status(401).json({ message: 'Invalid admin secret key' });
   }
@@ -58,7 +60,11 @@ export const login = async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
-
+  // const salt = await bcrypt.genSalt(10); 
+  
+  // // Hash the password
+  // const hashedPassword = await bcrypt.hash(password, salt);
+  // console.log(user.password, hashedPassword);
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({ message: 'Invalid email or password' });
@@ -77,5 +83,3 @@ export const login = async (req, res) => {
     token,
   });
 };
-
-

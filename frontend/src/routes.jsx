@@ -8,21 +8,20 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Customer
-import BookParcel from './pages/customer/BookParcel';
-import MyParcels from './pages/customer/MyParcels';
+// Customer Pages
+import BookParcel from './pages/BookParcel';
 
-// Admin
-import Dashboard from './pages/admin/Dashboard';
-import AssignParcel from './pages/admin/AssignParcel';
-import Users from './pages/admin/Users';
+// Admin Pages
+import Dashboard from './pages/Dashboard/AdminDashboard';
+import AssignParcel from './pages/AssignParcel';
+import Users from './pages/Users';
 
-// Agent
-import UpdateParcel from './pages/agent/UpdateParcel';
+// Agent Page
+import UpdateParcel from './pages/UpdateParcel';
 
 import NotFound from './pages/NotFound';
 
-export default function AppRoutes() {
+const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
@@ -31,14 +30,9 @@ export default function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       {/* Customer Routes */}
-      <Route path="/book" element={
+      <Route path="/book-parcel" element={
         <ProtectedRoute roles={['customer']}>
           <BookParcel />
-        </ProtectedRoute>
-      } />
-      <Route path="/my-parcels" element={
-        <ProtectedRoute roles={['customer']}>
-          <MyParcels />
         </ProtectedRoute>
       } />
 
@@ -70,4 +64,6 @@ export default function AppRoutes() {
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
+};
+
+export default AppRoutes;

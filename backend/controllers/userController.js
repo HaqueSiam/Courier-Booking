@@ -1,64 +1,86 @@
 // backend/controllers/userController.js
-
 import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
+import Parcel from '../models/Parcel.js';
 import bcrypt from 'bcryptjs';
-import { ADMIN_SECRET, AGENT_SECRET } from '../utils/constants.js';
-
-const generateToken = (user) => {
-  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
-};
-
-export const registerUser = async (req, res) => {
-  try {
-    const { username, email, password, role, secret } = req.body;
-
-    if (!username || !email || !password || !role) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    if ((role === 'admin' && secret !== ADMIN_SECRET) || (role === 'agent' && secret !== AGENT_SECRET)) {
-      return res.status(403).json({ message: 'Invalid secret key for role' });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(409).json({ message: 'User already exists' });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({ username, email, password: hashedPassword, role });
-    await user.save();
-
-    const token = generateToken(user);
-    res.status(201).json({ token, user: { id: user._id, username: user.username, role: user.role } });
-  } catch (err) {
-    res.status(500).json({ message: 'Registration failed', error: err.message });
-  }
-};
-
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
-
-    const token = generateToken(user);
-    res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
-  } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
-  }
-};
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Fetching users failed', error: err.message });
+    // Get all users with their parcel information
+    const users = await User.find().select('-password').lean();
+    
+    // Add parcel information to each user
+    for (const user of users) {
+      const parcels = await Parcel.find({ bookedBy: user._id })
+        .select('parcelName status createdAt')
+        .sort({ createdAt: -1 });
+      
+      user.parcels = parcels.length > 0 ? parcels : [];
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+};
+
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user', error: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { name, phone, email } = req.body;
+    
+    // Check if email is being updated and if it's already taken
+    if (email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser && existingUser._id.toString() !== req.params.id) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, phone, email },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    // Check if user has any parcels
+    const parcels = await Parcel.find({ bookedBy: req.params.id });
+    if (parcels.length > 0) {
+      return res.status(400).json({ 
+        message: 'Cannot delete user with active parcels',
+        parcelsCount: parcels.length
+      });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
   }
 };

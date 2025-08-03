@@ -1,28 +1,25 @@
 // frontend/src/components/RoleBasedRoutes.jsx
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
 
 // Pages
-import Home from "../pages/Home";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
+import Home from '../pages/Home';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
 
 // Customer Pages
-import BookParcel from "../pages/customer/BookParcel";
-import MyParcels from "../pages/customer/MyParcels";
+import BookParcel from '../pages/BookParcel';
 
 // Admin Pages
-import Dashboard from "../pages/admin/Dashboard";
-import AssignParcel from "../pages/admin/AssignParcel";
-import Users from "../pages/admin/Users";
+import Dashboard from '../pages/Dashboard/AdminDashboard';
+import AssignParcel from '../pages/AssignParcel';
+import Users from '../pages/Users';
 
-// Agent Pages
-import UpdateParcel from "../pages/agent/UpdateParcel";
+// Agent Page
+import UpdateParcel from '../pages/UpdateParcel';
 
-// Common Pages
-import TrackParcel from "../pages/TrackParcel";
-import NotFound from "../pages/NotFound";
+import NotFound from '../pages/NotFound';
 
 const RoleBasedRoutes = () => {
   return (
@@ -34,43 +31,35 @@ const RoleBasedRoutes = () => {
 
       {/* Customer Routes */}
       <Route
-        path="/book"
+        path="/book-parcel"
         element={
-          <ProtectedRoute roles={["customer"]}>
+          <ProtectedRoute roles={['customer']}>
             <BookParcel />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/my-parcels"
-        element={
-          <ProtectedRoute roles={["customer"]}>
-            <MyParcels />
           </ProtectedRoute>
         }
       />
 
       {/* Admin Routes */}
       <Route
-        path="/admin/dashboard"
+        path="/dashboard"
         element={
-          <ProtectedRoute roles={["admin"]}>
+          <ProtectedRoute roles={['admin']}>
             <Dashboard />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/admin/assign"
+        path="/assign-parcel"
         element={
-          <ProtectedRoute roles={["admin"]}>
+          <ProtectedRoute roles={['admin']}>
             <AssignParcel />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/admin/users"
+        path="/users"
         element={
-          <ProtectedRoute roles={["admin"]}>
+          <ProtectedRoute roles={['admin']}>
             <Users />
           </ProtectedRoute>
         }
@@ -78,16 +67,15 @@ const RoleBasedRoutes = () => {
 
       {/* Agent Routes */}
       <Route
-        path="/agent/update"
+        path="/update-parcel"
         element={
-          <ProtectedRoute roles={["agent"]}>
+          <ProtectedRoute roles={['agent']}>
             <UpdateParcel />
           </ProtectedRoute>
         }
       />
 
-      {/* Common */}
-      <Route path="/track/:id" element={<TrackParcel />} />
+      {/* 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

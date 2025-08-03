@@ -1,4 +1,4 @@
-// === File: backend/routes/adminRoutes.js ===
+// backend/routes/adminRoutes.js
 import express from 'express';
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 import {
@@ -19,4 +19,3 @@ router.post('/assign-parcel', assignParcelToAgent);
 router.get('/users', getUsersWithBookingHistory);
 
 export default router;
-

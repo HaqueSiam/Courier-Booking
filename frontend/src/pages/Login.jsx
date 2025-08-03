@@ -17,14 +17,14 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/auth/login", { email, password });
+      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
       const { user, token } = response.data;
 
       login(user, token);
       // Redirect based on role
       if (user.role === "admin") navigate("/dashboard");
       else if (user.role === "customer") navigate("/");
-      else if (user.role === "agent") navigate("/assigned");
+      else if (user.role === "agent") navigate("/update-parcel");
       else navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");

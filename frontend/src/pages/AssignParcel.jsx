@@ -8,30 +8,22 @@ const AssignParcel = () => {
 
   const [unassignedParcels, setUnassignedParcels] = useState([]);
   const [availableAgents, setAvailableAgents] = useState([]);
-  const [assignments, setAssignments] = useState({}); // { parcelId: agentId }
+  const [assignments, setAssignments] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Fetch unassigned parcels and available agents
   const fetchData = async () => {
     setLoading(true);
     setError("");
     try {
-      const parcelsRes = await axios.get("/api/admin/unassigned-parcels", {
+      const res = await axios.get("/api/admin/assign-parcel-data", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      const agentsRes = await axios.get("/api/admin/available-agents", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setUnassignedParcels(parcelsRes.data || []);
-      setAvailableAgents(agentsRes.data || []);
+      setUnassignedParcels(res.data.unassignedParcels || []);
+      setAvailableAgents(res.data.availableAgents || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to load unassigned parcels or agents."
-      );
+      setError(err.response?.data?.message || "Failed to load data.");
     } finally {
       setLoading(false);
     }
@@ -41,7 +33,6 @@ const AssignParcel = () => {
     fetchData();
   }, []);
 
-  // Handle agent selection for a parcel
   const handleSelectAgent = (parcelId, agentId) => {
     setAssignments((prev) => ({
       ...prev,
@@ -51,7 +42,6 @@ const AssignParcel = () => {
     setError("");
   };
 
-  // Submit assignment for a parcel
   const handleSubmit = async (parcelId) => {
     const agentId = assignments[parcelId];
     if (!agentId) {
@@ -67,25 +57,16 @@ const AssignParcel = () => {
       );
 
       setSuccessMsg(`Parcel ${parcelId} assigned to agent ${agentId} successfully.`);
-
-      // Remove assigned parcel from unassignedParcels
       setUnassignedParcels((prev) => prev.filter((p) => p._id !== parcelId));
-
-      // Remove assigned agent from availableAgents
       setAvailableAgents((prev) => prev.filter((a) => a._id !== agentId));
-
-      // Remove assignment state for that parcel
       setAssignments((prev) => {
         const copy = { ...prev };
         delete copy[parcelId];
         return copy;
       });
-
       setError("");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to assign parcel to agent."
-      );
+      setError(err.response?.data?.message || "Failed to assign parcel to agent.");
       setSuccessMsg("");
     }
   };
@@ -128,10 +109,10 @@ const AssignParcel = () => {
             </tr>
           </thead>
           <tbody>
-            {unassignedParcels.map(({ _id, parcelName, customerId }) => (
+            {unassignedParcels.map(({ _id, parcelName, bookedBy }) => (
               <tr key={_id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{_id}</td>
-                <td className="border border-gray-300 px-4 py-2">{customerId}</td>
+                <td className="border border-gray-300 px-4 py-2">{bookedBy._id}</td>
                 <td className="border border-gray-300 px-4 py-2">{parcelName}</td>
                 <td className="border border-gray-300 px-4 py-2">
                   <select
@@ -142,7 +123,7 @@ const AssignParcel = () => {
                     <option value="">Select Agent</option>
                     {availableAgents.map((agent) => (
                       <option key={agent._id} value={agent._id}>
-                        {agent.name} ({agent._id})
+                        {agent.name} ({agent.phone})
                       </option>
                     ))}
                   </select>

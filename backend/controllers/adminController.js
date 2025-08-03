@@ -1,4 +1,4 @@
-// === File: backend/controllers/adminController.js ===
+// backend/controllers/adminController.js
 import Parcel from '../models/Parcel.js';
 import User from '../models/User.js';
 
@@ -76,4 +76,3 @@ export const getUsersWithBookingHistory = async (req, res) => {
 
   res.json(users);
 };
-

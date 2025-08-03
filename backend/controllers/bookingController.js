@@ -1,4 +1,4 @@
-//backend/controllers/bookingController.js
+// backend/controllers/bookingController.js
 import Parcel from '../models/Parcel.js';
 
 export const createBooking = async (req, res) => {
@@ -24,6 +24,7 @@ export const createBooking = async (req, res) => {
     parcelSize,
     paymentType,
     bookedBy: req.user._id,
+    status: 'Not assigned yet',
   });
 
   res.status(201).json(parcel);

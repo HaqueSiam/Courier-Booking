@@ -60,7 +60,7 @@ const Navbar = () => {
             </li>
             <li>
               <Link
-                to="/book"
+                to="/book-parcel"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Book Parcel
@@ -82,7 +82,7 @@ const Navbar = () => {
           <>
             <li>
               <Link
-                to="/admin/dashboard"
+                to="/dashboard"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Dashboard
@@ -90,7 +90,7 @@ const Navbar = () => {
             </li>
             <li>
               <Link
-                to="/admin/assign"
+                to="/assign-parcel"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Assign Parcel
@@ -98,7 +98,7 @@ const Navbar = () => {
             </li>
             <li>
               <Link
-                to="/admin/users"
+                to="/users"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Users
@@ -120,7 +120,7 @@ const Navbar = () => {
           <>
             <li>
               <Link
-                to="/agent/update"
+                to="/update-parcel"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Update Parcel

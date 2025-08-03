@@ -12,16 +12,15 @@ const Home = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch bookings depending on role
     const fetchBookings = async () => {
       try {
         let url = "";
         if (user.role === "customer") {
-          url = "/api/bookings/customer"; // your backend should handle auth token to get bookings for user
+          url = "/api/bookings/my-bookings";
         } else if (user.role === "admin") {
-          url = "/api/bookings/admin/assigned";
+          url = "/api/admin/dashboard";
         } else if (user.role === "agent") {
-          url = "/api/bookings/agent/assigned";
+          url = "/api/agent/assigned-parcels";
         }
 
         if (!url) return;
@@ -66,9 +65,9 @@ const Home = () => {
           Your trusted courier and parcel booking service.
         </p>
         <img
-          src="/assets/courier_welcome.png" // Place your courier image here: public/assets/courier_welcome.png
+          src="home.jpg"
           alt="Courier Delivery"
-          className="mx-auto max-w-xs rounded-lg shadow-lg"
+          className="mx-auto w-[800px]  rounded-lg shadow-lg"
         />
       </div>
     );
@@ -146,7 +145,7 @@ const Home = () => {
           </select>
         </div>
         {filteredBookings.length === 0 ? (
-          <p className="text-gray-600">No bookings found.</p>
+          <p className="text-center text-gray-600">No bookings found.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white rounded-lg shadow">
@@ -165,9 +164,9 @@ const Home = () => {
                     className="border-b even:bg-gray-50 hover:bg-gray-100"
                   >
                     <td className="py-3 px-4">{b.parcelName}</td>
-                    <td className="py-3 px-4">{b.customerId}</td>
+                    <td className="py-3 px-4">{b.bookedBy._id}</td>
                     <td className="py-3 px-4">{b.status || "Not assigned yet"}</td>
-                    <td className="py-3 px-4">{b.assignedTo || "N/A"}</td>
+                    <td className="py-3 px-4">{b.assignedTo?._id || "N/A"}</td>
                   </tr>
                 ))}
               </tbody>

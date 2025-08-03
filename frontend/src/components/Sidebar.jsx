@@ -17,15 +17,15 @@ const Sidebar = () => {
         {user.role === "customer" && (
           <>
             <NavLink
-              to="/customer/home"
+              to="/"
               className={({ isActive }) =>
                 `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
               }
             >
-              My Parcels
+              My Bookings
             </NavLink>
             <NavLink
-              to="/book"
+              to="/book-parcel"
               className={({ isActive }) =>
                 `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
               }
@@ -38,7 +38,7 @@ const Sidebar = () => {
         {user.role === "admin" && (
           <>
             <NavLink
-              to="/admin/dashboard"
+              to="/dashboard"
               className={({ isActive }) =>
                 `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
               }
@@ -46,7 +46,7 @@ const Sidebar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/admin/assign"
+              to="/assign-parcel"
               className={({ isActive }) =>
                 `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
               }
@@ -54,7 +54,7 @@ const Sidebar = () => {
               Assign Parcels
             </NavLink>
             <NavLink
-              to="/admin/users"
+              to="/users"
               className={({ isActive }) =>
                 `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
               }
@@ -66,7 +66,7 @@ const Sidebar = () => {
 
         {user.role === "agent" && (
           <NavLink
-            to="/agent/update"
+            to="/update-parcel"
             className={({ isActive }) =>
               `${linkBase} ${isActive ? activeClass : "text-gray-700"}`
             }
