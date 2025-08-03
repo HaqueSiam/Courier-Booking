@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AssignParcel = () => {
   const { token } = useContext(AuthContext);
@@ -17,7 +18,7 @@ const AssignParcel = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("/api/admin/assign-parcel-data", {
+      const res = await axios.get(`${API_URL}/api/admin/assign-parcel-data`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnassignedParcels(res.data.unassignedParcels || []);
@@ -51,7 +52,7 @@ const AssignParcel = () => {
 
     try {
       await axios.post(
-        "/api/admin/assign-parcel",
+        `${API_URL}/api/admin/assign-parcel`,
         { parcelId, agentId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -2,6 +2,7 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const parcelTypes = ["Fragile", "Solid", "Liquid"];
 const parcelSizes = ["Small", "Medium", "Big"];
@@ -63,7 +64,7 @@ const BookParcel = () => {
         customerId: user.id,
       };
 
-      await axios.post("/api/bookings", payload, {
+      await axios.post(`${API_URL}/api/bookings`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

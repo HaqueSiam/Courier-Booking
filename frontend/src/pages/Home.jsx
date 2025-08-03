@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 const Home = () => {
   const { user, token } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
@@ -16,11 +16,11 @@ const Home = () => {
       try {
         let url = "";
         if (user.role === "customer") {
-          url = "/api/bookings/my-bookings";
+          url = `${API_URL}/api/bookings/my-bookings`;
         } else if (user.role === "admin") {
-          url = "/api/admin/dashboard";
+          url = `${API_URL}/api/admin/dashboard`;
         } else if (user.role === "agent") {
-          url = "/api/agent/assigned-parcels";
+          url = `${API_URL}/api/agent/assigned-parcels`;
         }
 
         if (!url) return;

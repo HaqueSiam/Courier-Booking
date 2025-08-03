@@ -1,6 +1,7 @@
 // frontend/src/pages/Dashboard/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const STATUS_OPTIONS = ["All", "Picked Up", "In Transit", "Delivered", "Failed"];
 
@@ -14,7 +15,7 @@ const AdminDashboard = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("/api/admin/bookings/assigned"); // Adjust API as per backend
+      const res = await axios.get(`${API_URL}/api/admin/bookings/assigned`); // Adjust API as per backend
       setBookings(res.data.bookings || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch bookings.");

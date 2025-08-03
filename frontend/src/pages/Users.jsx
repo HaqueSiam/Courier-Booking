@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Users = () => {
   const { token } = useContext(AuthContext);
@@ -14,7 +15,7 @@ const Users = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("/api/admin/users", {
+      const res = await axios.get(`${API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data || []);

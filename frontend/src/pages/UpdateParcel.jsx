@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const UpdateParcel = () => {
   const { token, user } = useContext(AuthContext);
@@ -23,7 +24,7 @@ const UpdateParcel = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("/api/agent/assigned-parcels", {
+      const res = await axios.get(`${API_URL}/api/agent/assigned-parcels`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setParcels(res.data || []);
@@ -60,7 +61,7 @@ const UpdateParcel = () => {
 
     try {
       await axios.put(
-        `/api/agent/update-status`,
+        `${API_URL}/api/agent/update-status`,
         updateData,
         {
           headers: { Authorization: `Bearer ${token}` },

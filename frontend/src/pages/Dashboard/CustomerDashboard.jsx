@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CustomerDashboard = () => {
   const { user, token } = useContext(AuthContext);
@@ -15,7 +16,7 @@ const CustomerDashboard = () => {
     setError("");
     try {
       // Assuming API to fetch bookings of logged-in customer
-      const res = await axios.get(`/api/customer/bookings/${user.id}`, {
+      const res = await axios.get(`${API_URL}/api/customer/bookings/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data.bookings || []);

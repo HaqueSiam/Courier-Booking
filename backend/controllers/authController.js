@@ -60,12 +60,14 @@ export const login = async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
-  // const salt = await bcrypt.genSalt(10); 
+  const salt = await bcrypt.genSalt(10); 
   
   // // Hash the password
-  // const hashedPassword = await bcrypt.hash(password, salt);
-  // console.log(user.password, hashedPassword);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  //console.log(user.password, hashedPassword);
   const isMatch = await bcrypt.compare(password, user.password);
+  // console.log(user.password, password);
+  // const isMatch = password === user.password;
   if (!isMatch) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }

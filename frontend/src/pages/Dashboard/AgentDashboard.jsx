@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const statusOptions = [
   "Picked Up",
@@ -26,7 +27,7 @@ const AgentDashboard = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(`/api/agent/parcels/${user.id}`, {
+      const res = await axios.get(`${API_URL}/api/agent/parcels/${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setParcels(res.data.parcels || []);
@@ -82,7 +83,7 @@ const AgentDashboard = () => {
       setError("");
       setSuccessMsg("");
       await axios.put(
-        `/api/agent/parcels/update/${selectedParcel._id}`,
+        `${API_URL}/api/agent/parcels/update/${selectedParcel._id}`,
         {
           location,
           status: updateStatus,
