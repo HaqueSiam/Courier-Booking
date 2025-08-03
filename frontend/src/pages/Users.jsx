@@ -50,6 +50,7 @@ const Users = () => {
 
       {!loading && users.length > 0 && (
         <div className="space-y-8">
+          
           {users.map((user) => (
             <div
               key={user._id}
@@ -71,11 +72,11 @@ const Users = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {user.bookings.map((booking) => (
+                      {user.bookings?.map((booking) => (
                         <tr key={booking._id} className="hover:bg-gray-50">
                           <td className="border border-gray-300 px-3 py-1">{booking.parcelName}</td>
                           <td className="border border-gray-300 px-3 py-1 capitalize">
-                            {booking.status || "Not Assigned"}
+                            {user.status || "Not Assigned"}
                           </td>
                         </tr>
                       ))}

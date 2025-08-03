@@ -4,17 +4,16 @@ import User from '../models/User.js';
 
 export const getDashboardBookings = async (req, res) => {
   const { status } = req.query;
-
   let filter = { assignedTo: { $ne: null } };
   if (status && status !== 'All') {
     filter.status = status;
   }
-
-  const parcels = await Parcel.find(filter)
+  console.log("hi");
+  const parcels = await Parcel.find()
     .populate('bookedBy', 'name email phone')
     .populate('assignedTo', 'name phone')
     .sort({ createdAt: -1 });
-
+  console.log(parcels)
   res.json(parcels);
 };
 
@@ -69,9 +68,11 @@ export const assignParcelToAgent = async (req, res) => {
 export const getUsersWithBookingHistory = async (req, res) => {
   const users = await User.find().select('_id name email phone role').lean();
 
+  
   for (const user of users) {
     const bookings = await Parcel.find({ bookedBy: user._id }).select('parcelName status');
-    user.bookings = bookings.length > 0 ? bookings : 'No booking history found';
+    console.log(bookings);
+    user.bookings = bookings.length > 0 ? bookings : null;
   }
 
   res.json(users);

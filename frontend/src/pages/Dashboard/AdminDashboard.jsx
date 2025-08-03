@@ -14,9 +14,15 @@ const AdminDashboard = () => {
   const fetchBookings = async () => {
     setLoading(true);
     setError("");
+    
+  
     try {
-      const res = await axios.get(`${API_URL}/api/admin/bookings/assigned`); // Adjust API as per backend
-      setBookings(res.data.bookings || []);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/api/admin/dashboard`, { // Remove the "?ALL" from URL
+      headers: { Authorization: `Bearer ${token}` },
+      params: { status: 'All' } // Send as query parameter instead
+    }); 
+      setBookings(res.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch bookings.");
     } finally {
