@@ -14,7 +14,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
-      <div className="text-xl font-semibold text-blue-600">📦 CourierApp</div>
+      <div className="text-xl font-semibold text-blue-600">📦 Courier Booking</div>
 
       <ul className="flex gap-6 items-center">
         {/* No user logged in */}
