@@ -20,9 +20,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
-    'https://courier-booking-k82x.vercel.app',
-    'https://courier-booking-k82x-eans6i9hd.vercel.app'
-    
+    'https://courier-booking-k82x.vercel.app'
   ],
  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true, 

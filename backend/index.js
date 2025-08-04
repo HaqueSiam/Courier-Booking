@@ -18,6 +18,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
+    'https://courier-booking-k82x.vercel.app',
   ],
  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true, 
@@ -41,6 +42,7 @@ app.use('/api/users', userRoutes);
 
 
 // Error handling middleware
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
