@@ -173,7 +173,7 @@ npm run dev
 }
 ```
 
-### 2. Parcel Management
+### 3. Parcel Management
 ### Assign Parcel to Agent
 
 ```
