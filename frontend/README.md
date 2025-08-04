@@ -85,7 +85,18 @@
 
   - Desktop-optimized admin views
 
+### 🛠 Tech Stack
+- Framework: React 18
 
+- State Management: Context API + Hooks
+
+- Routing: React Router 6
+
+- HTTP Client: Axios
+
+- Styling: Tailwind CSS + Material-UI
+
+- Build Tool: Vite
 
 
 ## 🧪 Project Structure

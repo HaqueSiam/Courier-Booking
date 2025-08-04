@@ -1,60 +1,79 @@
 
 ---
 
-## 📌 Key Features
+## 🔧 Courier Management System - Backend
 
-### ✅ Secure Dispatcher Package Creation
-- Endpoint: `POST /api/packages/create`
-- Dispatcher can create a new package by providing:
-  - Unique `package_id`
-  - Latitude & Longitude of origin
-  - Optional ETA & Note
-  - **Secret Key** for authentication
-- Prevents duplicate creation if a package with the same ID already exists in status: `CREATED`, `DELIVERED`, or `CANCELLED`.
+### 🚀 Features
 
-### 🔄 Secure Courier Status Updates
-- Endpoint: `POST /api/packages/update`
-- Couriers can update status only if:
-  - Provided secret key matches backend `.env` key
-  - Package ID matches exactly (case-sensitive)
-  - Status follows strict valid transitions:
-    - `PICKED_UP → IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED`
-    - `EXCEPTION` and `CANCELLED` may switch freely
-- Auto-generates `timestamp` at server-side.
-- Validates and rejects out-of-order or duplicate events.
-- Updates `current_status`, `lat`, `lon`, and `last_updated` based on the latest event.
+### 🔹 Role-Based Access Control
+- Endpoint	Access	Description
+  - POST /api/auth/register	Public	User registration
+  - GET /api/admin/dashboard	Admin	All parcels view
+  - PUT /api/agent/update-status	Agent	Status updates.
 
-### 🧠 Idempotency & Out-of-Order Handling
-- Event is de-duplicated using `timestamp + status`.
-- Out-of-order events are appended to history but **do not overwrite** the current status if timestamp is older.
+### 🔹 Core Modules
+✅ Authentication
 
-### 📦 Full Package History & Live Status
-- Each package stores a timeline (`events[]`) of all status updates.
-- Latest status info is always stored at the root level (`current_status`, `last_updated`, `lat`, `lon`, etc.).
+- JWT with 7-day expiry
 
-### ⚠️ Stuck Detection (for Frontend)
-- `last_updated` is used on frontend to detect "stuck" packages (inactive for 30+ minutes).
-- No backend cron job is needed — detection is client-driven.
+- Bcrypt password hashing
 
-### 🔐 Environment Variables (`.env`)
-- `PORT`: server port (default 5000)
-- `MONGO_URI`: connection string for MongoDB
-- `SECRET_KEY`: used to validate access to protected routes
+### 🧠 Diagram
+![Database Schema](./images/project_workflow.png)
+*Fig 1. Project Workflow*
 
+### ✅ Database Models
 
+- Users: name, email, role (admin/agent/customer)
+
+- Parcels: status, pickup/delivery addresses, timestamps
+
+### 🛠 Tech Stack
+- Runtime: Node.js 18+
+
+- Framework: Express.js
+
+- Database: MongoDB (Mongoose ODM)
+
+- Auth: JWT + Bcrypt
+
+- API Docs: Postman
 ---
 
 
 ## 🧪 Project Structure
 ```
-SERVER/
-├── index.js
+backend/
+├── controllers/
+│   ├── authController.js        
+│   ├── bookingController.js     
+│   ├── adminController.js       
+│   ├── agentController.js       
+│   └── userController.js        
+│
+├── middleware/
+│   ├── authMiddleware.js        
+│   ├── errorMiddleware.js       
+│
 ├── models/
-│ └── Package.js
+│   ├── User.js                  
+│   ├── Parcel.js                
+│
 ├── routes/
-│ └── packages.js
-├── .env
-└── package.json
+│   ├── authRoutes.js            
+│   ├── bookingRoutes.js         
+│   ├── adminRoutes.js           
+│   ├── agentRoutes.js
+│   ├── userRoutes.js             
+│
+├── utils/
+│   ├── analytics.js                  
+│   ├── constants.js            
+│
+├── .env                        
+├── index.js.js                   
+├── package.json
+└── README.md
 
 ```
 
@@ -66,8 +85,8 @@ SERVER/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/HaqueSiam/Package-Tracker-Backend.git
-cd Package-Tracker-Frontend
+git clone https://github.com/HaqueSiam/Courier-Booking.git
+cd backend
 ```
 ### 2. Install dependencies
 
@@ -79,30 +98,102 @@ npm install
 
 ```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/courier-tracker
-SECRET_KEY=mysecret
+MONGO_URI=mongodb://localhost:27017/courier-booking
+JWT_SECRET=mysecret
+ADMIN_SECRET_KEY=adminSecret123
+AGENT_SECRET_KEY=agentSecret123
 
 ```
 
 
-### 4. Start the Frontend
+### 4. Start the Backend
 
-```
+```bash
 npm run dev
 ```
 
-## API Endpoints
+## Paylods For API Testing
 
-POST /api/packages/create-
-Dispatcher creates a new package
-Required: package_id, lat, lon, secret
+### 1. Authentication
 
-POST /api/packages/update-
-Courier updates status
-Required: package_id, status, lat, lon, secret
+### User Registration
+```
+// POST /api/auth/register
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "password": "SecurePass123!",
+  "role": "customer",
+  "secretKey": "" // Only required for admin/agent
+}
 
-GET /api/packages-
-Fetch all packages updated in last 24h
+// Admin registration
+{
+  ...,
+  "role": "admin",
+  "secretKey": "your_admin_secret_key"
+}
+```
+### User Login
 
-GET /api/packages/:id-
-Fetch full history of a package
+```
+// POST /api/auth/login
+{
+  "email": "john@example.com",
+  "password": "SecurePass123!"
+}
+```
+
+
+### 2. Parcel Management
+
+### Create Parcel (Customer)
+
+```
+// POST /api/bookings
+{
+  "parcelName": "MacBook Pro 16",
+  "pickupAddress": "123 Main St, New York",
+  "deliveryAddress": "456 Tech Park, San Francisco",
+  "parcelType": "Fragile",
+  "parcelSize": "Medium",
+  "paymentType": "Prepaid"
+}
+
+```
+### Update Parcel Status (Agent)
+
+```
+// PUT /api/agent/update-status
+{
+  "parcelId": "65a1b2c3d4e5f6g7h8i9j0k",
+  "status": "In Transit",
+  "location": "40.7128,-74.0060" // Optional coordinates
+}
+```
+
+### 2. Parcel Management
+### Assign Parcel to Agent
+
+```
+// POST /api/admin/assign-parcel
+{
+  "parcelId": "65a1b2c3d4e5f6g7h8i9j0k",
+  "agentId": "65a1b2c3d4e5f6g7h8i9j0l"
+}
+```
+### Bulk User Import (Admin)
+```
+// POST /api/admin/users/import
+[{
+  "name": "Sarah Smith",
+  "email": "sarah@example.com",
+  "role": "agent"
+},
+{
+  "name": "Mike Johnson",
+  "email": "mike@example.com",
+  "role": "customer"
+}]
+```
