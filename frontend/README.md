@@ -1,68 +1,134 @@
-## 📌 Key Features
+## 🚀 Courier Management System - Functionality Overview
 
-### 🏠 Dashboard (Home Page)
-- Displays all packages updated in the last 24 hours.
-- Uses a real-time polling mechanism to refresh package data every 5 seconds.
-- Highlights "stuck" packages (not updated for more than 30 minutes) with a red background and alert.
-- Users can click a row to view full event history of a package in a modal-style timeline.
+### 🏠 Authentication & Authorization
+- User Registration:
 
-### 🔍 Search & Filter
-- Search bar allows filtering packages by `package_id` keyword.
-- Filter dropdown supports:
-  - **ACTIVE** – shows only in-progress packages (not DELIVERED/CANCELLED).
-  - **ALL** – shows all packages regardless of status.
+  - Role-based signup (Customer/Agent/Admin with secret keys)
 
-### 🚚 Courier Status Update Form
-- Accessible from `/courier` route.
-- Allows couriers to update package status.
-- Auto-generates `timestamp` on submission (no manual input).
-- Accepts only valid status transitions:
-  - `PICKED_UP → IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED`
-  - `EXCEPTION` and `CANCELLED` are interchangeable.
-- Includes a secure **secret key** input which is verified on the backend (not passed via headers).
-- All inputs automatically trim whitespace.
+  - Form validation with error handling
 
-### 🧑‍💼 Dispatcher Package Creation Form
-- Accessible from `/dispatcher` route.
-- Creates a new package with:
-  - Default status `CREATED`
-  - Coordinates (`lat`, `lon`), optional `note`, and `eta`
-- Prevents creation of packages that already exist with `CREATED`, `DELIVERED`, or `CANCELLED` statuses.
-- Includes secret key authentication for secure usage.
+- User Login:
 
-### ⚠️ Stuck Alerts
-- If a package has not been updated in the last **30 minutes**, an alert appears above the dashboard.
-- Alert includes dismiss (`×`) button for UX friendliness.
+  - JWT token storage in localStorage
 
-### 🎨 Aesthetic & Responsive Design
-- Tailwind CSS-based clean, modern design.
-- Distinct visual elements (colored status indicators, spacing, hover effects).
-- Responsive layout that works well on desktop and mobile.
-- Consistent branding with heading: **"Aamira Package Tracker"**
+  - Automatic redirect based on role (Admin→Dashboard, Agent→Parcel Update)
+
+- Protected Routes:
+
+  - Role-based access control (e.g., only Admins can access /assign-parcel)
+
+### 📦 Customer Features
+- Parcel Booking:
+
+  - Multi-step form with parcel details (type, size, addresses)
+
+  - Real-time form validation
+
+- Booking Dashboard:
+
+  - View all personal parcels with status tracking
+
+  - Filter by status (Pending/In Transit/Delivered)
+
+### 👔 Admin Features
+- Dashboard
+
+  - Real-time metrics (total parcels/delivery rates)
+
+  - Agent performance analytics
+
+  - Exportable reports (CSV/PDF)
+
+- Parcel Assignment
+
+  - Drag-drop assignment interface
+
+  - Agent workload balancing
+
+  - Assignment history tracking
+
+- User Management
+
+  - Bulk user import/export
+
+  - Role modification with approval logs
+
+  - Activity audit trails
+
+### 🛵 Agent Features
+- Parcel Status Updates
+
+  - GPS location capture
+
+  - Photo proof upload
+
+  - Status change reasons (Delay/Damage/etc.)
+
+- Task Management
+
+  - Daily route optimization
+
+  - Priority parcel highlighting
+
+  - Offline mode support
+
+### 🔄 Shared Functionalities
+- Real-time Updates
+
+  - WebSocket notifications for status changes
+
+  - Auto-refresh without page reload
+
+- Responsive Design
+
+  - Mobile-first interface for agents
+
+  - Desktop-optimized admin views
 
 
 
 
 ## 🧪 Project Structure
 ```
-COURIER-TRAKER/
+frontend/
 ├── public/
+│   └── home.jpg               
 ├── src/
-│ ├── components/
-│ │ ├── Navbar.jsx
-│ │ ├── CourierForm.jsx
-│ │ ├── DispatcherForm.jsx
-│ │ └── PackageDetail.jsx
-│ ├── pages/
-│ │ ├── Home.jsx
-│ │ ├── Courier.jsx
-│ │ └── Dispatcher.jsx
-│ ├── App.jsx
-│ ├── main.jsx
-│ └── index.css
+│   ├── assets/                   
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   ├── Sidebar.jsx
+│   │   └── RoleBasedRoutes.jsx
+│   ├── context/
+│   │   └── AuthContext.jsx
+│   ├── hooks/
+│   │   └── useAuth.js
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard/
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── CustomerDashboard.jsx
+│   │   │   └── AgentDashboard.jsx
+│   │   ├── BookParcel.jsx
+│   │   ├── AssignParcel.jsx
+│   │   ├── Users.jsx
+│   │   ├── UpdateParcel.jsx
+│   │   ├── NotFound.jsx
+│   ├── services/
+│   │   └── api.js
+│   ├── App.jsx
+│   ├── main.jsx
+│   ├── routes.jsx
+│   └── index.css
 ├── index.html
-├── .env
-└── vite.config.js
+├── vercel.json
+├── vite.config.js
+├── package.json
+├── package-lock-json
+
 
 ```
 
@@ -73,8 +139,8 @@ COURIER-TRAKER/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/HaqueSiam/Package-Tracker-Frontend.git
-cd Package-Tracker-Frontend
+git clone https://github.com/HaqueSiam/Courier-Booking.git
+cd frontend
 ```
 ### 2. Install dependencies
 
